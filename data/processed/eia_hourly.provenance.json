@@ -1,0 +1,38 @@
+{
+  "source": "EIA Open Data API (Form EIA-930)",
+  "endpoints": [
+    "https://api.eia.gov/v2/electricity/rto/fuel-type-data/data",
+    "https://api.eia.gov/v2/electricity/rto/region-data/data"
+  ],
+  "respondents": {
+    "CAL": "CA",
+    "ERCO": "TX",
+    "NYIS": "NY"
+  },
+  "period_start": "2026-02-04T00",
+  "period_end": "2026-02-05T23",
+  "hours": 48,
+  "fuel_capacity_method": "peak observed dispatchable + 15% headroom",
+  "battery_assumptions": {
+    "CA": {
+      "power_mw": 4000,
+      "energy_mwh": 16000,
+      "efficiency": 0.88,
+      "initial_soc_mwh": 8000
+    },
+    "TX": {
+      "power_mw": 3000,
+      "energy_mwh": 12000,
+      "efficiency": 0.9,
+      "initial_soc_mwh": 6000
+    },
+    "NY": {
+      "power_mw": 2000,
+      "energy_mwh": 8000,
+      "efficiency": 0.85,
+      "initial_soc_mwh": 4000
+    }
+  },
+  "fetched_at": "2026-02-07T05:54:56.694487+00:00",
+  "api_key_source": "EIA_API_KEY env var"
+}

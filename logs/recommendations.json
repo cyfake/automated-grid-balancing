@@ -1,0 +1,128 @@
+[
+  {
+    "rank": 1,
+    "type": "add_transfer",
+    "description": "Double all transfer capacities",
+    "change": {
+      "increase_pct": 100
+    },
+    "kpi_deltas": {
+      "unserved_mwh_delta": -68310.34,
+      "curtailment_mwh_delta": 0.0,
+      "fuel_mwh_delta": 68310.34,
+      "renewable_util_delta": 0.0,
+      "score_delta": -67627236.6
+    }
+  },
+  {
+    "rank": 2,
+    "type": "add_transfer",
+    "description": "Increase all transfer capacities by 50%",
+    "change": {
+      "increase_pct": 50
+    },
+    "kpi_deltas": {
+      "unserved_mwh_delta": -35924.06,
+      "curtailment_mwh_delta": 0.0,
+      "fuel_mwh_delta": 35924.06,
+      "renewable_util_delta": 0.0,
+      "score_delta": -35564819.4
+    }
+  },
+  {
+    "rank": 3,
+    "type": "add_storage",
+    "description": "Add 8000 MWh battery storage to CA",
+    "change": {
+      "state": "CA",
+      "added_mwh": 8000.0
+    },
+    "kpi_deltas": {
+      "unserved_mwh_delta": -2892.4,
+      "curtailment_mwh_delta": 0.0,
+      "fuel_mwh_delta": 0.0,
+      "renewable_util_delta": 0.0,
+      "score_delta": -2892400.0
+    }
+  },
+  {
+    "rank": 4,
+    "type": "add_storage",
+    "description": "Add 4000 MWh battery storage to NY",
+    "change": {
+      "state": "NY",
+      "added_mwh": 4000.0
+    },
+    "kpi_deltas": {
+      "unserved_mwh_delta": -337.41,
+      "curtailment_mwh_delta": 0.0,
+      "fuel_mwh_delta": -1069.14,
+      "renewable_util_delta": 0.0,
+      "score_delta": -348101.4
+    }
+  },
+  {
+    "rank": 5,
+    "type": "add_storage",
+    "description": "Add 6000 MWh battery storage to TX",
+    "change": {
+      "state": "TX",
+      "added_mwh": 6000.0
+    },
+    "kpi_deltas": {
+      "unserved_mwh_delta": 0.0,
+      "curtailment_mwh_delta": 0.0,
+      "fuel_mwh_delta": -2213.3,
+      "renewable_util_delta": 0.0,
+      "score_delta": -22133.0
+    }
+  },
+  {
+    "rank": 6,
+    "type": "add_battery_power",
+    "description": "Add 2000 MW battery power to CA",
+    "change": {
+      "state": "CA",
+      "added_mw": 2000.0
+    },
+    "kpi_deltas": {
+      "unserved_mwh_delta": 0.0,
+      "curtailment_mwh_delta": 0.0,
+      "fuel_mwh_delta": 0.0,
+      "renewable_util_delta": 0.0,
+      "score_delta": 0.0
+    }
+  },
+  {
+    "rank": 7,
+    "type": "add_battery_power",
+    "description": "Add 1000 MW battery power to NY",
+    "change": {
+      "state": "NY",
+      "added_mw": 1000.0
+    },
+    "kpi_deltas": {
+      "unserved_mwh_delta": 0.0,
+      "curtailment_mwh_delta": 0.0,
+      "fuel_mwh_delta": 0.0,
+      "renewable_util_delta": 0.0,
+      "score_delta": 0.0
+    }
+  },
+  {
+    "rank": 8,
+    "type": "add_battery_power",
+    "description": "Add 1500 MW battery power to TX",
+    "change": {
+      "state": "TX",
+      "added_mw": 1500.0
+    },
+    "kpi_deltas": {
+      "unserved_mwh_delta": 0.0,
+      "curtailment_mwh_delta": 0.0,
+      "fuel_mwh_delta": 0.0,
+      "renewable_util_delta": 0.0,
+      "score_delta": 0.0
+    }
+  }
+]

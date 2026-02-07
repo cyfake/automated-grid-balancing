@@ -1,0 +1,10 @@
+{
+  "total_unserved_mwh": 445086.47,
+  "total_curtailment_mwh": 0.0,
+  "total_fuel_mwh": 1347844.13,
+  "total_renewable_mwh": 523301.0,
+  "total_load_mwh": 2329256.0,
+  "renewable_utilization": 1.0,
+  "transfer_utilization": 0.2747,
+  "battery_cycles_proxy": 0.3618
+}
