@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.env
+.DS_Store
+*.log
+llm_error.log
+agent_status.log
+output/
+artifacts/
+.gemini/
+.agent/

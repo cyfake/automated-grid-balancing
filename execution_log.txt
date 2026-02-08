@@ -1,0 +1,2 @@
+[NbConvertApp] Converting notebook PJM_Load_Analysis.ipynb to notebook
+[NbConvertApp] Writing 275293 bytes to PJM_Load_Analysis_Verified.ipynb
