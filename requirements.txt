@@ -1,3 +1,6 @@
 agentfield
 python-dotenv
 pydantic
+streamlit
+plotly
+pandas
