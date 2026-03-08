@@ -36,27 +36,32 @@ if 'orchestrator' not in st.session_state:
     
     # Initialize Context
     try:
-        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "automated_grid_balancing", "data", "processed"))
-        dataset = DatasetConfig(pjm_dir=data_dir, pjm_pattern="pjm_hourly_est.csv", region="Texas")
-        req = RunRequest(dataset=dataset, horizon_steps=6, n_steps=8760)
+        from pathlib import Path
+        agent_dir = Path(__file__).parent / "automated_grid_balancing"
+        policy_path = agent_dir / "configs" / "policy.yaml"
+        cost_path = agent_dir / "configs" / "cost.yaml"
         
-        # Prepare Run
-        context = st.session_state.orchestrator.prepare_run(req)
+        policy, cost_weights = app.call("policy_agent", "load_policy", 
+                                       policy_path=str(policy_path),
+                                       cost_path=str(cost_path))
+                                       
+        # Fetch the first live state
+        initial_state = app.call("telemetry_agent", "fetch_live_gridstate", step_idx=0, zone="DE")
         
-        # Filter for a specific year (e.g., 2000) to ensure meaningful simulation
-        # The Orchestrator returns the full stream in context['df_stream']
-        df = context['df_stream']
-        year_to_simulate = 2000
-        df = df[df['timestamp'].dt.year == year_to_simulate]
+        context = {
+            "policy": policy,
+            "cost_weights": cost_weights,
+            "state": initial_state,
+            "logs": [],
+            "total_violations": 0,
+            "total_cost": 0.0,
+            "horizon_steps": 6,
+            "grid_path": "live_stream" # dummy for forecast agent
+        }
         
-        if df.empty:
-            st.error(f"No data found for year {year_to_simulate} in {dataset.pjm_pattern}")
-            st.stop()
-            
-        context['df_stream'] = df.reset_index(drop=True)
         st.session_state.context = context
     except Exception as e:
-        st.error(f"Failed to initialize simulation context: {e}")
+        st.error(f"Failed to initialize live simulation context: {e}")
         st.stop()
 
     # KPI State
@@ -93,17 +98,27 @@ if reset_button:
     }
     # Re-init context
     try:
-        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "automated_grid_balancing", "data", "processed"))
-        dataset = DatasetConfig(pjm_dir=data_dir, pjm_pattern="pjm_hourly_est.csv", region="Texas")
-        req = RunRequest(dataset=dataset, horizon_steps=6, n_steps=8760)
+        from pathlib import Path
+        agent_dir = Path(__file__).parent / "automated_grid_balancing"
+        policy_path = agent_dir / "configs" / "policy.yaml"
+        cost_path = agent_dir / "configs" / "cost.yaml"
         
-        context = st.session_state.orchestrator.prepare_run(req)
+        policy, cost_weights = app.call("policy_agent", "load_policy", 
+                                       policy_path=str(policy_path),
+                                       cost_path=str(cost_path))
+                                       
+        initial_state = app.call("telemetry_agent", "fetch_live_gridstate", step_idx=0, zone="DE")
         
-        # Filter 2000
-        df = context['df_stream']
-        year_to_simulate = 2000
-        df = df[df['timestamp'].dt.year == year_to_simulate]
-        context['df_stream'] = df.reset_index(drop=True)
+        context = {
+            "policy": policy,
+            "cost_weights": cost_weights,
+            "state": initial_state,
+            "logs": [],
+            "total_violations": 0,
+            "total_cost": 0.0,
+            "horizon_steps": 6,
+            "grid_path": "live_stream"
+        }
         
         st.session_state.context = context
     except Exception as e:
@@ -130,7 +145,7 @@ with tab2:
     metric_placeholder = st.empty()
 
 # --- Visualization Helper ---
-def update_ui():
+def update_ui(step_idx: int = 0):
     if not st.session_state.history:
         return
 
@@ -176,7 +191,7 @@ def update_ui():
             showlegend=True,
             margin=dict(l=0, r=0, t=30, b=0)
         )
-        dynamics_placeholder.plotly_chart(fig_dynamics, use_container_width=True)
+        dynamics_placeholder.plotly_chart(fig_dynamics, use_container_width=True, key=f"dynamics_{step_idx}")
 
         # --- Time Series History ---
         # st.subheader("Energy Composition (Fuel Mix)") # Removed to prevent duplication
@@ -188,16 +203,35 @@ def update_ui():
         fig.add_trace(go.Scatter(x=df['time'], y=df['Gas'], mode='lines', stackgroup='one', name='Gas', line=dict(width=0, color='#e71d36')))
         fig.add_trace(go.Scatter(x=df['time'], y=df['Demand'], mode='lines', name='Demand', line=dict(color='white', width=2, dash='dot')))
         fig.update_layout(height=400, margin=dict(l=0, r=0, t=0, b=0), hovermode="x unified")
-        history_placeholder.plotly_chart(fig, use_container_width=True)
+        history_placeholder.plotly_chart(fig, use_container_width=True, key=f"history_{step_idx}")
     
     # Metrics
     last_state, last_log = st.session_state.history[-1]
     with state_placeholder.container():
+        # First row of metrics
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Demand", f"{last_state.demand_mw:.0f} MW")
-        c2.metric("Solar/Wind", f"{last_state.solar_mw:.0f} / {last_state.wind_mw:.0f} MW")
+        c2.metric("Solar + Wind", f"{last_state.solar_mw:.0f} / {last_state.wind_mw:.0f} MW")
         c3.metric("Frequency", f"{last_state.freq_proxy:.2f} Hz", delta=f"{last_state.freq_proxy-60:.2f}")
         c4.metric("Step Cost", f"${last_log.cost:,.2f}")
+        
+        # Second row of metrics (New Electricity Maps Data)
+        st.markdown("---")
+        sc1, sc2, sc3 = st.columns(3)
+        
+        c_int = last_state.carbon_intensity
+        if c_int is not None:
+            sc1.metric("Carbon Intensity", f"{c_int:.1f} gCO₂eq/kWh")
+        else:
+            sc1.metric("Carbon Intensity", "N/A")
+            
+        r_pct = last_state.renewable_percentage
+        if r_pct is not None:
+            sc2.metric("Renewable %", f"{r_pct:.1f}%")
+        else:
+            sc2.metric("Renewable %", "N/A")
+            
+        sc3.metric("Zone", f"🌍 {last_state.region}")
 
     # Logs
     with log_placeholder.container():
@@ -228,12 +262,14 @@ if is_running:
     # So `while is_running:` (where `is_running` is the value at START of script) is fine, 
     # because if user unchecks it, Streamlit kills the script and changes `is_running` to False on next run.
     
-    while step_idx < len(context['df_stream']):
+    # We no longer have a fixed length df_stream. This is a live polling loop.
+    # It will run until the user unchecks the box (which triggers a rerender and breaks the loop).
+    
+    while is_running:
         
         with status_text.container():
-            st.write(f"**Step {step_idx} / {len(context['df_stream'])}** - _Agents processing..._")
+            st.write(f"**Step {step_idx}** - _Polling live data from Electricity Maps API..._")
         
-        time.sleep(0.1) 
         try:
             result = st.session_state.orchestrator.run_step(context, step_idx)
             
@@ -241,17 +277,18 @@ if is_running:
             st.session_state.step_count += 1
             step_idx += 1
             
-            update_ui()
+            # The UI needs to know the step so it can generate unique react keys for graphs
+            update_ui(step_idx)
+            
+            # Sleep for a few seconds before the next poll so we don't spam the API/UI too fast
+            # In a real deployed app, you'd probably poll every 5 minutes. We use 3s for simulation feel.
+            time.sleep(3.0) 
             
         except Exception as e:
             st.error(f"Error at step {step_idx}: {e}")
             st.session_state.running = False
             break
-            
-    if step_idx >= len(context['df_stream']):
-        status_text.success("Simulation Complete!")
-        st.session_state.running = False
 
 # Show UI if paused but has history
 if not is_running and st.session_state.history:
-    update_ui()
+    update_ui(st.session_state.step_count)
