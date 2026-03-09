@@ -6,108 +6,135 @@ from datetime import datetime
 import sys
 import os
 
-# Ensure project root is on path so src/ package resolves
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+# Ensure AgentField integration
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from src.agents.ingestion_agent import ingest
-from src.agents.state_builder_agent import build_state_series
-from src.agents.transfer_agent import build_topology
-from src.agents.forecast_agent import build_forecast
-from src.agents.policy_agent import default_policy
-from src.planning.planner_agent import plan as run_planner
-from src.sim.simulation_agent import simulate
-from src.agents.stress_agent import find_stress_windows
-from src.agents.recommendation_agent import generate_recommendations
+from agentfield import app
+from automated_grid_balancing.agents.orchestrator_agent import OrchestratorAgent
+from automated_grid_balancing.agents.telemetry_agent import TelemetryAgent
+from automated_grid_balancing.agents.forecast_agent import ForecastAgent
+from automated_grid_balancing.agents.policy_agent import PolicyAgent
+from automated_grid_balancing.agents.planner_agent import PlannerAgent
+from automated_grid_balancing.agents.verifier_agent import VerifierAgent
+from automated_grid_balancing.common.schemas import DatasetConfig, RunRequest, ExogenousConfig
 
 st.set_page_config(page_title="Agentic Grid Management", layout="wide")
 
-st.title("⚡ Multi-State Grid Agent")
+st.title("⚡ Texas Grid Agent")
 st.markdown("""
-This dashboard demonstrates the **Autonomous Grid Balancing** backend.
-It uses 6 specialized agents to manage the grid across CA, TX, and NY.
+This dashboard demonstrates the **Autonomous Grid Balancing** backend. 
+It uses 6 specialized agents to manage the grid in real-time.
 """)
 
-
-# ---------------------------------------------------------------------------
-# Session State Initialization
-# ---------------------------------------------------------------------------
-if "pipeline_run" not in st.session_state:
-    st.session_state.pipeline_run = False
+# --- Session State Initialization ---
+if 'orchestrator' not in st.session_state:
+    st.session_state.orchestrator = OrchestratorAgent()
+    st.session_state.context = None 
+    st.session_state.history = []
     st.session_state.step_count = 0
     st.session_state.running = False
-    st.session_state.history = []  # list of (hour, action, per_state_snapshot)
-
+    
+    # Initialize Context
     try:
-        records = ingest()
-        state_series, battery_configs = build_state_series(
-            records, start_hour=0, num_hours=48
-        )
-        states = sorted(state_series.keys())
-        topology = build_topology(states)
-        forecast = build_forecast(state_series, start_hour=0, horizon=24)
-        policy = default_policy()
-        dispatch_plan = run_planner(forecast, topology, battery_configs, policy)
-        kpis = simulate(dispatch_plan, forecast, topology, battery_configs)
-        stress_events = find_stress_windows(dispatch_plan, forecast)
-        recs = generate_recommendations(
-            forecast, topology, battery_configs, policy, kpis
-        )
-
-        st.session_state.forecast = forecast
-        st.session_state.dispatch_plan = dispatch_plan
-        st.session_state.kpis = kpis
-        st.session_state.stress_events = stress_events
-        st.session_state.recs = recs
-        st.session_state.states = states
-        st.session_state.battery_configs = battery_configs
-        st.session_state.topology = topology
-        st.session_state.policy = policy
-        st.session_state.pipeline_run = True
+        from pathlib import Path
+        agent_dir = Path(__file__).parent / "automated_grid_balancing"
+        policy_path = agent_dir / "configs" / "policy.yaml"
+        cost_path = agent_dir / "configs" / "cost.yaml"
+        
+        policy, cost_weights = app.call("policy_agent", "load_policy", 
+                                       policy_path=str(policy_path),
+                                       cost_path=str(cost_path))
+                                       
+        # Fetch the first live state
+        initial_state = app.call("telemetry_agent", "fetch_live_gridstate", step_idx=0, zone="DE")
+        
+        context = {
+            "policy": policy,
+            "cost_weights": cost_weights,
+            "state": initial_state,
+            "logs": [],
+            "total_violations": 0,
+            "total_cost": 0.0,
+            "horizon_steps": 6,
+            "grid_path": "live_stream" # dummy for forecast agent
+        }
+        
+        st.session_state.context = context
     except Exception as e:
-        st.error(f"Failed to initialize pipeline: {e}")
+        st.error(f"Failed to initialize live simulation context: {e}")
         st.stop()
 
-    # Running KPI accumulators
-    st.session_state.running_kpis = {
-        "total_fuel_mwh": 0.0,
-        "total_unserved_mwh": 0.0,
-        "total_curtailment_mwh": 0.0,
-        "total_renewable_mwh": 0.0,
-        "total_load_mwh": 0.0,
-        "battery_discharge_mwh": 0.0,
+    # KPI State
+    st.session_state.kpis = {
+        "max_freq_dev": 0.0,
+        "total_cost": 0.0,
+        "violations": 0,
+        "battery_cycles": 0,
+        "gen_solar": 0.0,
+        "gen_wind": 0.0,
+        "gen_gas": 0.0,
+        "gen_battery": 0.0
     }
 
-
-# ---------------------------------------------------------------------------
-# Sidebar
-# ---------------------------------------------------------------------------
+# --- Sidebar ---
 st.sidebar.header("Simulation Controls")
-focus_state = st.sidebar.selectbox(
-    "Focus State", st.session_state.states, index=st.session_state.states.index("TX")
-)
-is_running = st.sidebar.checkbox(
-    "Start Agentic Loop", value=st.session_state.running
-)
+is_running = st.sidebar.checkbox("Start Agentic Loop", value=st.session_state.running)
 reset_button = st.sidebar.button("Reset Simulation")
 
 if reset_button:
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
+    st.session_state.orchestrator = OrchestratorAgent()
+    st.session_state.history = []
+    st.session_state.step_count = 0
+    st.session_state.running = False
+    st.session_state.kpis = {
+        "max_freq_dev": 0.0,
+        "total_cost": 0.0,
+        "violations": 0,
+        "battery_cycles": 0,
+        "gen_solar": 0.0,
+        "gen_wind": 0.0,
+        "gen_gas": 0.0,
+        "gen_battery": 0.0
+    }
+    # Re-init context
+    try:
+        from pathlib import Path
+        agent_dir = Path(__file__).parent / "automated_grid_balancing"
+        policy_path = agent_dir / "configs" / "policy.yaml"
+        cost_path = agent_dir / "configs" / "cost.yaml"
+        
+        policy, cost_weights = app.call("policy_agent", "load_policy", 
+                                       policy_path=str(policy_path),
+                                       cost_path=str(cost_path))
+                                       
+        initial_state = app.call("telemetry_agent", "fetch_live_gridstate", step_idx=0, zone="DE")
+        
+        context = {
+            "policy": policy,
+            "cost_weights": cost_weights,
+            "state": initial_state,
+            "logs": [],
+            "total_violations": 0,
+            "total_cost": 0.0,
+            "horizon_steps": 6,
+            "grid_path": "live_stream"
+        }
+        
+        st.session_state.context = context
+    except Exception as e:
+        st.error(f"Failed to reset context: {e}")
     st.rerun()
 
-
-# ---------------------------------------------------------------------------
-# Layout
-# ---------------------------------------------------------------------------
+# --- Layout ---
 tab1, tab2 = st.tabs(["⚡ Live Dynamics", "📊 Analytics & Insights"])
 
 with tab1:
     st.subheader("Real-Time Balance")
     dynamics_placeholder = st.empty()
-
+    
     st.subheader("Current Grid State")
     state_placeholder = st.empty()
-
+    
     st.subheader("Energy Composition (Fuel Mix)")
     history_placeholder = st.empty()
 
@@ -116,248 +143,152 @@ with tab2:
     log_placeholder = st.empty()
     st.subheader("Run Metrics")
     metric_placeholder = st.empty()
-    st.subheader("Recommendations")
-    rec_placeholder = st.empty()
 
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-def _compute_step_cost(action, policy, forecast, h, states):
-    """Compute an approximate cost for a single hour from penalties."""
-    cost = 0.0
-    for st in states:
-        cost += action.fuel_dispatch_mw.get(st, 0) * policy.fuel_penalty
-        cost += action.unserved_mw.get(st, 0) * policy.unserved_penalty
-        cost += action.curtailment_mw.get(st, 0) * policy.curtailment_penalty
-    return cost
-
-
-def _explain_step(action, forecast, h, focus):
-    """Generate a one-line explanation for the step."""
-    sf = forecast.states[focus]
-    load = sf.load[h]
-    solar = sf.solar[h]
-    wind = sf.wind[h]
-    fuel = action.fuel_dispatch_mw.get(focus, 0)
-    discharge = action.battery_discharge_mw.get(focus, 0)
-    charge = action.battery_charge_mw.get(focus, 0)
-    curtail = action.curtailment_mw.get(focus, 0)
-    unserved = action.unserved_mw.get(focus, 0)
-
-    parts = [f"Load {load:.0f} MW"]
-    if solar + wind > 0:
-        parts.append(f"RE {solar + wind:.0f}")
-    if fuel > 0:
-        parts.append(f"Fuel {fuel:.0f}")
-    if discharge > 0:
-        parts.append(f"Batt↑ {discharge:.0f}")
-    if charge > 0:
-        parts.append(f"Batt↓ {charge:.0f}")
-    if curtail > 0:
-        parts.append(f"Curtail {curtail:.0f}")
-    if unserved > 0:
-        parts.append(f"UNSERVED {unserved:.0f}")
-    return " | ".join(parts)
-
-
-def update_ui():
-    """Refresh all visualisation placeholders from session history."""
+# --- Visualization Helper ---
+def update_ui(step_idx: int = 0):
     if not st.session_state.history:
         return
 
-    forecast = st.session_state.forecast
-    policy = st.session_state.policy
-    states = st.session_state.states
-    focus = focus_state
-
-    # Build a dataframe from history
-    rows = []
-    for h, action in st.session_state.history:
-        sf = forecast.states[focus]
+    # Data Prep
+    df_data = []
+    for state, log in st.session_state.history:
         row = {
-            "hour": h,
-            "Demand": sf.load[h],
-            "Solar": sf.solar[h],
-            "Wind": sf.wind[h],
-            "Gas": action.fuel_dispatch_mw.get(focus, 0),
-            "Battery": action.battery_discharge_mw.get(focus, 0),
-            "Curtailment": action.curtailment_mw.get(focus, 0),
-            "Unserved": action.unserved_mw.get(focus, 0),
-            "SoC": action.soc_after_mwh.get(focus, 0),
-            "Cost": _compute_step_cost(action, policy, forecast, h, states),
+            "time": state.timestamp,
+            "Demand": state.demand_mw,
+            "Renewables": state.renewable_mw,
+            "Solar": state.solar_mw,
+            "Wind": state.wind_mw,
+            "Gas": log.action.peaker_mw,
+            "Battery": max(0, -log.action.battery_mw), # Discharge
+            "Curtailment": log.action.curtail_mw,
+            "Cost": log.cost,
+            "Violations": len(log.violations)
         }
-        rows.append(row)
-
-    df = pd.DataFrame(rows)
-    if df.empty:
-        return
-
-    # --- Live bar chart: supply stack vs demand for latest hour ---
-    last = df.iloc[-1]
-    supply_traces = []
-    for name, color in [
-        ("Gas", "#e71d36"),
-        ("Battery", "#ff9f1c"),
-        ("Wind", "#00A4E4"),
-        ("Solar", "#FDB813"),
-    ]:
-        if last[name] > 0:
-            supply_traces.append(
-                go.Bar(name=name, x=["Supply"], y=[last[name]], marker_color=color)
-            )
-    demand_trace = go.Bar(
-        name="Demand", x=["Demand"], y=[last["Demand"]], marker_color="white"
-    )
-    fig_bar = go.Figure(data=[demand_trace] + supply_traces)
-    fig_bar.update_layout(
-        barmode="stack",
-        title=f"Hour {int(last['hour'])} — {focus} Balance (MW)",
-        height=300,
-        yaxis=dict(title="Power (MW)"),
-        showlegend=True,
-        margin=dict(l=0, r=0, t=30, b=0),
-    )
-    dynamics_placeholder.plotly_chart(fig_bar, use_container_width=True)
-
-    # --- Time-series stacked area ---
-    fig_ts = go.Figure()
-    for name, color in [
-        ("Solar", "#FDB813"),
-        ("Wind", "#00A4E4"),
-        ("Battery", "#ff9f1c"),
-        ("Gas", "#e71d36"),
-    ]:
-        fig_ts.add_trace(
-            go.Scatter(
-                x=df["hour"],
-                y=df[name],
-                mode="lines",
-                stackgroup="one",
-                name=name,
-                line=dict(width=0, color=color),
-            )
+        df_data.append(row)
+    
+    df = pd.DataFrame(df_data)
+    
+    
+    if not df.empty:
+        # --- Live Dynamics (Supply vs Demand) ---
+        last_row = df.iloc[-1]
+        
+        supply_traces = []
+        # Stack order: Gas (base), Battery, Wind, Solar
+        if last_row['Gas'] > 0: supply_traces.append(go.Bar(name='Gas', x=['Supply'], y=[last_row['Gas']], marker_color='#e71d36'))
+        if last_row['Battery'] > 0: supply_traces.append(go.Bar(name='Battery', x=['Supply'], y=[last_row['Battery']], marker_color='#ff9f1c'))
+        if last_row['Wind'] > 0: supply_traces.append(go.Bar(name='Wind', x=['Supply'], y=[last_row['Wind']], marker_color='#00A4E4'))
+        if last_row['Solar'] > 0: supply_traces.append(go.Bar(name='Solar', x=['Supply'], y=[last_row['Solar']], marker_color='#FDB813'))
+        
+        demand_trace = go.Bar(name='Demand', x=['Demand'], y=[last_row['Demand']], marker_color='white')
+        
+        fig_dynamics = go.Figure(data=[demand_trace] + supply_traces)
+        fig_dynamics.update_layout(
+            barmode='stack', 
+            title="Real-Time Grid Balance (MW)",
+            height=300,
+            yaxis=dict(title='Power (MW)'),
+            showlegend=True,
+            margin=dict(l=0, r=0, t=30, b=0)
         )
-    fig_ts.add_trace(
-        go.Scatter(
-            x=df["hour"],
-            y=df["Demand"],
-            mode="lines",
-            name="Demand",
-            line=dict(color="white", width=2, dash="dot"),
-        )
-    )
-    fig_ts.update_layout(
-        height=400,
-        xaxis=dict(title="Hour"),
-        yaxis=dict(title="Power (MW)"),
-        margin=dict(l=0, r=0, t=0, b=0),
-        hovermode="x unified",
-    )
-    history_placeholder.plotly_chart(fig_ts, use_container_width=True)
+        dynamics_placeholder.plotly_chart(fig_dynamics, use_container_width=True, key=f"dynamics_{step_idx}")
 
-    # --- Metrics cards ---
-    h_idx = int(last["hour"])
-    action = st.session_state.dispatch_plan.actions[h_idx]
-    sf = forecast.states[focus]
-    renewable_total = sf.solar[h_idx] + sf.wind[h_idx]
-    supply_total = renewable_total + last["Gas"] + last["Battery"]
-    balance_delta = supply_total - last["Demand"]
-
+        # --- Time Series History ---
+        # st.subheader("Energy Composition (Fuel Mix)") # Removed to prevent duplication
+        fig = go.Figure()
+        # Stacked Area Chart (Order matters)
+        fig.add_trace(go.Scatter(x=df['time'], y=df['Solar'], mode='lines', stackgroup='one', name='Solar', line=dict(width=0, color='#FDB813')))
+        fig.add_trace(go.Scatter(x=df['time'], y=df['Wind'], mode='lines', stackgroup='one', name='Wind', line=dict(width=0, color='#00A4E4')))
+        fig.add_trace(go.Scatter(x=df['time'], y=df['Battery'], mode='lines', stackgroup='one', name='Battery', line=dict(width=0, color='#ff9f1c')))
+        fig.add_trace(go.Scatter(x=df['time'], y=df['Gas'], mode='lines', stackgroup='one', name='Gas', line=dict(width=0, color='#e71d36')))
+        fig.add_trace(go.Scatter(x=df['time'], y=df['Demand'], mode='lines', name='Demand', line=dict(color='white', width=2, dash='dot')))
+        fig.update_layout(height=400, margin=dict(l=0, r=0, t=0, b=0), hovermode="x unified")
+        history_placeholder.plotly_chart(fig, use_container_width=True, key=f"history_{step_idx}")
+    
+    # Metrics
+    last_state, last_log = st.session_state.history[-1]
     with state_placeholder.container():
+        # First row of metrics
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Demand", f"{last['Demand']:.0f} MW")
-        c2.metric(
-            "Solar / Wind",
-            f"{sf.solar[h_idx]:.0f} / {sf.wind[h_idx]:.0f} MW",
-        )
-        c3.metric(
-            "Balance",
-            f"{supply_total:.0f} MW supplied",
-            delta=f"{balance_delta:+.0f} MW",
-        )
-        c4.metric("Step Cost", f"${last['Cost']:,.0f}")
+        c1.metric("Demand", f"{last_state.demand_mw:.0f} MW")
+        c2.metric("Solar + Wind", f"{last_state.solar_mw:.0f} / {last_state.wind_mw:.0f} MW")
+        c3.metric("Frequency", f"{last_state.freq_proxy:.2f} Hz", delta=f"{last_state.freq_proxy-60:.2f}")
+        c4.metric("Step Cost", f"${last_log.cost:,.2f}")
+        
+        # Second row of metrics (New Electricity Maps Data)
+        st.markdown("---")
+        sc1, sc2, sc3 = st.columns(3)
+        
+        c_int = last_state.carbon_intensity
+        if c_int is not None:
+            sc1.metric("Carbon Intensity", f"{c_int:.1f} gCO₂eq/kWh")
+        else:
+            sc1.metric("Carbon Intensity", "N/A")
+            
+        r_pct = last_state.renewable_percentage
+        if r_pct is not None:
+            sc2.metric("Renewable %", f"{r_pct:.1f}%")
+        else:
+            sc2.metric("Renewable %", "N/A")
+            
+        sc3.metric("Zone", f"🌍 {last_state.region}")
 
-    # --- Audit logs ---
+    # Logs
     with log_placeholder.container():
-        for h, action in reversed(st.session_state.history[-10:]):
-            explanation = _explain_step(action, forecast, h, focus)
-            cost = _compute_step_cost(action, policy, forecast, h, states)
-            st.text(f"[H{h:02d}] {explanation} | Cost: ${cost:,.0f}")
+        for state, log in reversed(st.session_state.history[-10:]):
+            st.text(f"[{state.timestamp.strftime('%H:%M')}] {log.explanation} | Cost: ${log.cost:.0f}")
 
-    # --- Run metrics ---
-    rk = st.session_state.running_kpis
-    with metric_placeholder.container():
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Total Fuel", f"{rk['total_fuel_mwh']:,.0f} MWh")
-        m2.metric("Total Unserved", f"{rk['total_unserved_mwh']:,.0f} MWh")
-        m3.metric("Curtailed", f"{rk['total_curtailment_mwh']:,.0f} MWh")
-        m4.metric("Renewable Used", f"{rk['total_renewable_mwh']:,.0f} MWh")
-
-    # --- Recommendations ---
-    recs = st.session_state.recs
-    if recs:
-        with rec_placeholder.container():
-            for r in recs[:5]:
-                st.markdown(f"**#{r.rank}** `{r.rec_type}` — {r.description}")
-
-
-# ---------------------------------------------------------------------------
-# Main Run Logic
-# ---------------------------------------------------------------------------
+# --- Main Run Logic ---
+# --- Main Run Logic ---
 if is_running:
+    # Use a loop within the script execution to avoid full page reloads
+    # This keeps the session active and updates placeholders dynamically.
+    
     status_text = st.empty()
-
+    stop_button_pl = st.empty()
+    
+    # Initial step index from session state
     step_idx = st.session_state.step_count
-    plan = st.session_state.dispatch_plan
-    forecast = st.session_state.forecast
-    policy = st.session_state.policy
-    states = st.session_state.states
-    total_hours = len(plan.actions)
-
-    while step_idx < total_hours:
+    context = st.session_state.context
+    
+    # We need a way to stop inside the loop since the sidebar checkbox won't update session state 
+    # until the script finishes or reruns.
+    # So we add a "Stop" button in the main area or check for a file flag (too complex).
+    # Streamlit's "Stop" button in the top right works, but let's just make the loop check a placeholder button?
+    # Actually, simpler: Just run for X steps or until finished, then rerun to update state.
+    # OR, rely on the user unchecking the box which triggers a rerun... WAit.
+    # If we are in a while loop, the script effectively hangs in the loop. The "checkbox" change in UI 
+    # will trigger a thread interrupt/RerunRequest in Streamlit server, effectively breaking the loop.
+    # So `while is_running:` (where `is_running` is the value at START of script) is fine, 
+    # because if user unchecks it, Streamlit kills the script and changes `is_running` to False on next run.
+    
+    # We no longer have a fixed length df_stream. This is a live polling loop.
+    # It will run until the user unchecks the box (which triggers a rerender and breaks the loop).
+    
+    while is_running:
+        
         with status_text.container():
-            st.write(
-                f"**Step {step_idx} / {total_hours}** — _Agents processing..._"
-            )
-
-        time.sleep(0.15)
-
+            st.write(f"**Step {step_idx}** - _Polling live data from Electricity Maps API..._")
+        
         try:
-            action = plan.actions[step_idx]
-
-            # Accumulate running KPIs
-            rk = st.session_state.running_kpis
-            for st_name in states:
-                sf = forecast.states[st_name]
-                rk["total_fuel_mwh"] += action.fuel_dispatch_mw.get(st_name, 0)
-                rk["total_unserved_mwh"] += action.unserved_mw.get(st_name, 0)
-                rk["total_curtailment_mwh"] += action.curtailment_mw.get(st_name, 0)
-                rk["total_renewable_mwh"] += (
-                    sf.solar[step_idx]
-                    + sf.wind[step_idx]
-                    - action.curtailment_mw.get(st_name, 0)
-                )
-                rk["total_load_mwh"] += sf.load[step_idx]
-                rk["battery_discharge_mwh"] += action.battery_discharge_mw.get(
-                    st_name, 0
-                )
-
-            st.session_state.history.append((step_idx, action))
+            result = st.session_state.orchestrator.run_step(context, step_idx)
+            
+            st.session_state.history.append((result['state'], result['log']))
             st.session_state.step_count += 1
             step_idx += 1
-
-            update_ui()
-
+            
+            # The UI needs to know the step so it can generate unique react keys for graphs
+            update_ui(step_idx)
+            
+            # Sleep for a few seconds before the next poll so we don't spam the API/UI too fast
+            # In a real deployed app, you'd probably poll every 5 minutes. We use 3s for simulation feel.
+            time.sleep(3.0) 
+            
         except Exception as e:
             st.error(f"Error at step {step_idx}: {e}")
             st.session_state.running = False
             break
 
-    if step_idx >= total_hours:
-        status_text.success("Simulation Complete!")
-        st.session_state.running = False
-
 # Show UI if paused but has history
 if not is_running and st.session_state.history:
-    update_ui()
+    update_ui(st.session_state.step_count)
