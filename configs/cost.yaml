@@ -1,0 +1,5 @@
+battery_cycle_cost: 10.0
+curtailment_penalty: 50.0
+dr_cost: 100.0
+peaker_cost: 200.0
+violation_penalty: 10000.0

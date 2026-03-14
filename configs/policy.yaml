@@ -1,0 +1,4 @@
+reserve_min_mw: 500.0
+freq_min_hz: 59.95
+ramp_limit_mw: 200.0
+max_action_mw: 1000.0

@@ -1,6 +1,9 @@
-streamlit
-plotly
+agentfield
 pandas
 numpy
-pyyaml
+streamlit
+plotly
 pydantic
+pyyaml
+matplotlib
+jupyter
