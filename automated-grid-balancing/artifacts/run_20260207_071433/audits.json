@@ -1,0 +1,356 @@
+[
+  {
+    "step": 0,
+    "timestamp": "2024-01-01T00:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 25679.999999999996,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 27680.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 25680.0 MW."
+    },
+    "violations": [],
+    "cost": 2777999.9999999995,
+    "explanation": "Action taken: Deficit of 27680.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 25680.0 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 1,
+    "timestamp": "2024-01-01T01:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 28795.0,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 30795.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 28795.0 MW."
+    },
+    "violations": [],
+    "cost": 3089500.0,
+    "explanation": "Action taken: Deficit of 30795.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 28795.0 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 2,
+    "timestamp": "2024-01-01T02:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 28863.666666666668,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 30863.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 28863.7 MW."
+    },
+    "violations": [],
+    "cost": 3096366.666666667,
+    "explanation": "Action taken: Deficit of 30863.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 28863.7 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 3,
+    "timestamp": "2024-01-01T03:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 28180.333333333332,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 30180.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 28180.3 MW."
+    },
+    "violations": [],
+    "cost": 3028033.333333333,
+    "explanation": "Action taken: Deficit of 30180.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 28180.3 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 4,
+    "timestamp": "2024-01-01T04:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 26891.333333333332,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 28891.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 26891.3 MW."
+    },
+    "violations": [],
+    "cost": 2899133.333333333,
+    "explanation": "Action taken: Deficit of 28891.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 26891.3 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 5,
+    "timestamp": "2024-01-01T05:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 25837.999999999996,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 27838.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 25838.0 MW."
+    },
+    "violations": [],
+    "cost": 2793799.9999999995,
+    "explanation": "Action taken: Deficit of 27838.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 25838.0 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 6,
+    "timestamp": "2024-01-01T06:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 25026.666666666664,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 27026.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 25026.7 MW."
+    },
+    "violations": [],
+    "cost": 2712666.6666666665,
+    "explanation": "Action taken: Deficit of 27026.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 25026.7 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 7,
+    "timestamp": "2024-01-01T07:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 24263.666666666664,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 26263.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 24263.7 MW."
+    },
+    "violations": [],
+    "cost": 2636366.6666666665,
+    "explanation": "Action taken: Deficit of 26263.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 24263.7 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 8,
+    "timestamp": "2024-01-01T08:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 23570.333333333336,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 25570.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 23570.3 MW."
+    },
+    "violations": [],
+    "cost": 2567033.3333333335,
+    "explanation": "Action taken: Deficit of 25570.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 23570.3 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 9,
+    "timestamp": "2024-01-01T09:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 23234.0,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 25234.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 23234.0 MW."
+    },
+    "violations": [],
+    "cost": 2533400.0,
+    "explanation": "Action taken: Deficit of 25234.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 23234.0 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 10,
+    "timestamp": "2024-01-01T10:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 23154.333333333332,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 25154.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 23154.3 MW."
+    },
+    "violations": [],
+    "cost": 2525433.333333333,
+    "explanation": "Action taken: Deficit of 25154.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 23154.3 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 11,
+    "timestamp": "2024-01-01T11:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 23669.666666666664,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 25669.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 23669.7 MW."
+    },
+    "violations": [],
+    "cost": 2576966.6666666665,
+    "explanation": "Action taken: Deficit of 25669.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 23669.7 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 12,
+    "timestamp": "2024-01-01T12:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 24982.333333333332,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 26982.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 24982.3 MW."
+    },
+    "violations": [],
+    "cost": 2708233.333333333,
+    "explanation": "Action taken: Deficit of 26982.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 24982.3 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 13,
+    "timestamp": "2024-01-01T13:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 27017.333333333336,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 29017.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 27017.3 MW."
+    },
+    "violations": [],
+    "cost": 2911733.3333333335,
+    "explanation": "Action taken: Deficit of 29017.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 27017.3 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 14,
+    "timestamp": "2024-01-01T14:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 27766.666666666664,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 29766.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 27766.7 MW."
+    },
+    "violations": [],
+    "cost": 2986666.6666666665,
+    "explanation": "Action taken: Deficit of 29766.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 27766.7 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 15,
+    "timestamp": "2024-01-01T15:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 24189.33333333333,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 26189.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 24189.3 MW."
+    },
+    "violations": [
+      "Reserve margins low: 76.4 MW"
+    ],
+    "cost": 2638933.333333333,
+    "explanation": "Action taken: Deficit of 26189.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 24189.3 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 16,
+    "timestamp": "2024-01-01T16:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 20536.666666666664,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 22536.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 20536.7 MW."
+    },
+    "violations": [
+      "Reserve margins low: -923.6 MW"
+    ],
+    "cost": 2273666.6666666665,
+    "explanation": "Action taken: Deficit of 22536.7 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 20536.7 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 17,
+    "timestamp": "2024-01-01T17:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 18865.0,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 20865.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 18865.0 MW."
+    },
+    "violations": [
+      "Reserve margins low: -1923.6 MW"
+    ],
+    "cost": 2106500.0,
+    "explanation": "Action taken: Deficit of 20865.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 18865.0 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 18,
+    "timestamp": "2024-01-01T18:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 17863.333333333336,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 19863.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 17863.3 MW."
+    },
+    "violations": [
+      "Reserve margins low: -2923.6 MW"
+    ],
+    "cost": 2006333.3333333335,
+    "explanation": "Action taken: Deficit of 19863.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 17863.3 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 19,
+    "timestamp": "2024-01-01T19:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 17078.0,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 19078.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 17078.0 MW."
+    },
+    "violations": [
+      "Reserve margins low: -3923.6 MW"
+    ],
+    "cost": 1927800.0,
+    "explanation": "Action taken: Deficit of 19078.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 17078.0 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 20,
+    "timestamp": "2024-01-01T20:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 16291.0,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 18291.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 16291.0 MW."
+    },
+    "violations": [
+      "Reserve margins low: -4923.6 MW"
+    ],
+    "cost": 1849100.0,
+    "explanation": "Action taken: Deficit of 18291.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 16291.0 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 21,
+    "timestamp": "2024-01-01T21:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 15957.0,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 17957.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 15957.0 MW."
+    },
+    "violations": [
+      "Reserve margins low: -5923.6 MW"
+    ],
+    "cost": 1815700.0,
+    "explanation": "Action taken: Deficit of 17957.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 15957.0 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 22,
+    "timestamp": "2024-01-01T22:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 16805.0,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 18805.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 16805.0 MW."
+    },
+    "violations": [
+      "Reserve margins low: -6923.6 MW"
+    ],
+    "cost": 1900500.0,
+    "explanation": "Action taken: Deficit of 18805.0 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 16805.0 MW.. Result freq: 60.00Hz."
+  },
+  {
+    "step": 23,
+    "timestamp": "2024-01-01T23:00:00",
+    "action": {
+      "battery_mw": -1000.0,
+      "curtail_mw": 0.0,
+      "dr_mw": 19466.333333333336,
+      "peaker_mw": 1000.0,
+      "reasoning": "Deficit of 21466.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 19466.3 MW."
+    },
+    "violations": [
+      "Reserve margins low: -7923.6 MW"
+    ],
+    "cost": 2166633.3333333335,
+    "explanation": "Action taken: Deficit of 21466.3 MW. | Discharging 1000.0 MW. | Peaker dispatch 1000.0 MW. | Emergency DR 19466.3 MW.. Result freq: 60.00Hz."
+  }
+]

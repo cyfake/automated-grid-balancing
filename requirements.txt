@@ -1,3 +1,7 @@
 agentfield
-python-dotenv
+pandas
+numpy
 pydantic
+pyyaml
+matplotlib
+jupyter

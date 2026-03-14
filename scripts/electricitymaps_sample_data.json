@@ -1,0 +1,39 @@
+{
+  "wind": {
+    "zone": "DE",
+    "temporalGranularity": "hourly",
+    "unit": "MW",
+    "data": [
+      {
+        "datetime": "2026-03-08T19:00:00.000Z",
+        "updatedAt": "2026-03-08T19:41:30.412Z",
+        "isEstimated": true,
+        "estimationMethod": "ESTIMATED_FORECASTS_HIERARCHY",
+        "value": 13461
+      }
+    ],
+    "source": "wind"
+  },
+  "carbon_intensity": {
+    "zone": "DE",
+    "carbonIntensity": 472,
+    "datetime": "2026-03-08T19:00:00.000Z",
+    "updatedAt": "2026-03-08T19:41:30.412Z",
+    "createdAt": "2026-03-07T22:41:13.645Z",
+    "emissionFactorType": "lifecycle",
+    "isEstimated": true,
+    "estimationMethod": "FORECASTS_HIERARCHY",
+    "temporalGranularity": "hourly"
+  },
+  "renewable_percentage": {
+    "zone": "DE",
+    "datetime": "2026-03-08T19:00:00.000Z",
+    "updatedAt": "2026-03-08T19:41:30.412Z",
+    "createdAt": "2026-03-07T22:41:13.645Z",
+    "unit": "%",
+    "value": 48,
+    "isEstimated": true,
+    "estimationMethod": "FORECASTS_HIERARCHY",
+    "temporalGranularity": "hourly"
+  }
+}
