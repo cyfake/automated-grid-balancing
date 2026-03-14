@@ -1,6 +1,8 @@
 agentfield
 pandas
 numpy
+streamlit
+plotly
 pydantic
 pyyaml
 matplotlib
